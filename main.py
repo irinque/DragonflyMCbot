@@ -44,12 +44,29 @@ async def send_form(interaction: discord.Interaction):
     embed = discord.Embed(title="📝 АНКЕТА ДЛЯ ИГРЫ НА СЕРВЕРЕ", description="📑 Заполните короткую форму, после чего вы сможете зайти на сервер!\n", colour=discord.Colour.from_str(color_main))
     embed.set_footer(text=prefix)
     view = View()
-    view_button = Button(label="📨 Анкета", style=discord.ButtonStyle.green, custom_id="button_anketa_open")
+    view_button = Button(label="📨 Анкета", style=discord.ButtonStyle.green, custom_id="button_form_open")
     view.add_item(view_button)
     channel = discord.utils.get(interaction.guild.channels, id=channel_createform_data)
     await channel.send(embed=embed, view=view)
     embed = discord.Embed(title="✅ СООБЩЕНИЕ ОТПРАВЛЕНО В КАНАЛ!", colour=discord.Colour.from_str(color_main))
     await interaction.response.send_message(embed=embed, ephemeral=True, delete_after=5)
+
+@bot.event
+async def on_interaction(interaction):
+    if interaction.data.get("custom_id") == "button_form_open":
+        class SendApplication(discord.ui.Modal, title="📝 Заполнение Анкеты!"):
+            Nickname = discord.ui.TextInput(label="🎴 Ваш игровой никнейм:", placeholder="Его внесут в белый список.", style=discord.TextStyle.short, max_length=20)
+            Experience = discord.ui.TextInput(label="💡 Ваш опыт игры на серверах:", placeholder="Конкретный пример, когда и где.", style=discord.TextStyle.long)
+            LoaylProgram = discord.ui.TextInput(label="🔥 Откуда узнали о сервере?", placeholder="Если от друзей, то важно от каких, если увидели рекламу, то скажите где.", style=discord.TextStyle.short, max_length=20)
+            Rules = discord.ui.TextInput(label="📙 Изучили правила?", placeholder="Да/Нет", style=discord.TextStyle.short, max_length=3)
+            Description = discord.ui.TextInput(label="💼 Что вы планируете делать на сервере:", placeholder="Опишите ваши планы.", style=discord.TextStyle.long)
+            async def on_submit(self, interaction: discord.Interaction):
+                embed = discord.Embed(title="📄 НОВАЯ АНКЕТА:", description=f"**🎴 Никнейм: ** {self.Nickname}\n**💡 Опыт Игры: ** {self.Experience}\n**🔥 Узнал о сервере:** {self.LoaylProgram}\n**📙 Изучил Правила:** {self.Rules}\n**💼 Планы:** {self.Description}", colour=discord.Colour.from_str(color_main))
+                embed.set_footer(text=prefix)
+                channel = discord.utils.get(interaction.guild.channels, id=channel_receiveform_data)
+                await channel.send(embed=embed)
+        await interaction.response.send_modal(SendApplication())
+
     
 
 if __name__ == "__main__":
