@@ -19,11 +19,16 @@ async def send_embed(interaction: discord.Interaction):
     async def select_callback(interaction: discord.Interaction):
         channel = discord.utils.get(interaction.guild.channels, name=str(dropdown.values[0]))
         class SendApplication(discord.ui.Modal, title="📝 СОЗДАНИЕ EMBED"):
-            message_title = discord.ui.TextInput(label="🎴 ЗАГОЛОВОК", style=discord.TextStyle.short)
-            description = discord.ui.TextInput(label="🀄 ОПИСАНИЕ", style=discord.TextStyle.long, required=True)
+            message_title = discord.ui.TextInput(label="🎴 ЗАГОЛОВОК", style=discord.TextStyle.short, required=False)
+            description = discord.ui.TextInput(label="🀄 ОПИСАНИЕ", style=discord.TextStyle.long, required=False)
             image = discord.ui.TextInput(label="🌄 КАРТИНКА", style=discord.TextStyle.short, required=False)
             async def on_submit(self, interaction: discord.Interaction):
-                embed = discord.Embed(title=self.message_title, description=self.description, colour=discord.Colour.from_str(color_main))
+                if self.message_title and self.description:
+                    embed = discord.Embed(title=self.message_title, description=self.description, colour=discord.Colour.from_str(color_main))
+                if self.message_title and not self.description:
+                    embed = discord.Embed(title=self.message_title, colour=discord.Colour.from_str(color_main))
+                if not self.message_title and self.description:
+                    embed = discord.Embed(description=self.description, colour=discord.Colour.from_str(color_main))
                 if self.image:
                     embed.set_image(url=self.image)
                 embed.set_footer(text=prefix)
